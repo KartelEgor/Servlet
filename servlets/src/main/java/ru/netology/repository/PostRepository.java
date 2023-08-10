@@ -4,46 +4,43 @@ import ru.netology.exception.NotFoundException;
 import ru.netology.model.Post;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 // Stub
 public class PostRepository {
 
-  private final List<Post> listOfPosts = new CopyOnWriteArrayList<>();
-  AtomicInteger count = new AtomicInteger(1);
+    AtomicInteger count = new AtomicInteger(1);
 
-  public List<Post> all() {
-    return listOfPosts;
-  }
+    private final static Map<Long, Post> mapOfPosts = new ConcurrentHashMap<>();
 
-  public Optional<Post> getById(long id) {
-    for (Post idPost : listOfPosts) {
-      if (id == idPost.getId()) {
-        return Optional.of(idPost);
-      }
+    public List<Post> all() {
+        return new CopyOnWriteArrayList<>(mapOfPosts.values());
     }
-    return Optional.empty();
-  }
 
-  public Post save(Post post) {
-    if(post.getId() == 0) {
-      listOfPosts.add(new Post(count.get(), post.getContent()));
-      count.getAndIncrement();
-    } else {
-      for (Post idPost : listOfPosts) {
-        if (idPost.getId() == post.getId()) {
-          idPost.setContent(post.getContent());
-          return post;
+    public Optional<Post> getById(long id) {
+        return Optional.of(mapOfPosts.get(id));
+    }
+
+
+    public Post save(Post post) {
+        if (post.getId() == 0) {
+            mapOfPosts.put((long) count.get(), new Post(count.get(), post.getContent()));
+            count.getAndIncrement();
+        } else {
+            if (mapOfPosts.containsKey(post.getId())) {
+                mapOfPosts.put(post.getId(), new Post(post.getId(), post.getContent()));
+                return post;
+            }
+            throw new NotFoundException();
         }
-      }
-      throw new NotFoundException();
+        return post;
     }
-    return post;
-  }
 
-  public void removeById(long id) {
-      listOfPosts.removeIf(idPost -> id == idPost.getId());
-  }
+    public void removeById(long id) {
+        mapOfPosts.remove(id);
+    }
 }
