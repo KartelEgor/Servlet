@@ -8,7 +8,6 @@ import ru.netology.service.PostService;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Reader;
-@Controller
 public class PostController {
     private final String APPLICATION_JSON = "application/json";
     private final PostService service;
