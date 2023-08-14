@@ -13,9 +13,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 // Stub
 public class PostRepository {
 
-    AtomicInteger count = new AtomicInteger(1);
+    private final AtomicInteger count = new AtomicInteger(1);
 
-    private final static Map<Long, Post> mapOfPosts = new ConcurrentHashMap<>();
+    private final Map<Long, Post> mapOfPosts = new ConcurrentHashMap<>();
 
     public List<Post> all() {
         return new CopyOnWriteArrayList<>(mapOfPosts.values());
